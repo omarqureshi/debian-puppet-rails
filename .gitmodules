@@ -1,3 +1,9 @@
 [submodule "modules/rvm"]
 	path = modules/rvm
 	url = git://github.com/blt04/puppet-rvm.git
+[submodule "modules/common"]
+	path = modules/common
+	url = https://github.com/camptocamp/puppet-common.git
+[submodule "modules/apt"]
+	path = modules/apt
+	url = https://github.com/camptocamp/puppet-apt.git
