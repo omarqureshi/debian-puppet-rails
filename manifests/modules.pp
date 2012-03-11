@@ -1,3 +1,8 @@
+import "backports"
+import "debian-pre"
 import "common"
+import "augeas"
 import "apt"
 import "rvm"
+import "postgresql"
+import "nginx"

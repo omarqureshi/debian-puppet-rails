@@ -1,8 +1,12 @@
+Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
+
 node basenode {
-  Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
-  include "common"
   include "apt"
+  include "backports"
+  include "debian-pre"
+  include "common"
   include "rvm"
+  include "augeas"
   rvm_system_ruby {
    'ree-1.8.7-2012.02': 
      ensure => 'present',
@@ -16,4 +20,6 @@ node 'blog-puppet.local' inherits basenode {
      ensure => 'present',
      default_use => true;
   }
+  include 'postgresql::v9-1'
+  include 'nginx'
 }

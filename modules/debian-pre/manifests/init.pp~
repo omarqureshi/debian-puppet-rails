@@ -1,0 +1,7 @@
+class debian-pre {
+  package { "lsb-release": ensure => installed }
+  apt::sources_list {"backports":
+    ensure  => present,
+    content => "deb http://backports.debian.org/debian-backports squeeze-backports main",
+  }
+}
