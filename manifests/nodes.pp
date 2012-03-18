@@ -22,4 +22,5 @@ node 'blog-puppet.local' inherits basenode {
   }
   include 'postgresql::v9-1'
   include 'nginx'
+  iptables::role { "web-server": }
 }

@@ -1,0 +1,4 @@
+# Access to web
+iptables -A INPUT -p tcp -d ${MAIN_IP} --dport ${WEB} -j ACCEPT
+# Send mail from web applications
+iptables -A OUTPUT -p tcp --dport ${SMTP} -j ACCEPT

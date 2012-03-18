@@ -1,0 +1,25 @@
+# Servers
+export PUPPETMASTER=31.222.171.163
+# Well-known ports
+export DNS=53
+export FTP=21
+export GIT=9418
+export HEARTBEAT=694
+export IMAPS=993
+export IRC=6667
+export MONIT=2828
+export MYSQL=3306
+export MYSQL_MASTER=3307
+export NRPE=5666
+export NTP=123
+export POSTGRES=5432
+export PUPPET=8140
+export RSYNCD=873
+export SMTP=25
+export SPHINX=3312
+export SSH=22
+export STARLING=3307
+export SYSLOG=514
+export WEB=80
+export WEB_SSL=443
+export ZABBIX=10051

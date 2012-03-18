@@ -1,0 +1,2 @@
+# Access to puppet
+iptables -A INPUT -p tcp -d ${MAIN_IP} --dport ${PUPPET} -j ACCEPT
