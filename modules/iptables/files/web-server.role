@@ -1,4 +1,6 @@
 # Access to web
-iptables -A INPUT -p tcp -d ${MAIN_IP} --dport ${WEB} -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport ${WEB} --tcp-flags SYN,RST,ACK SYN -j ACCEPT
+
 # Send mail from web applications
+iptables -A OUTPUT -p tcp --sport ${WEB} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${SMTP} -j ACCEPT
