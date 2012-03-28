@@ -14,13 +14,31 @@ node basenode {
   }
 }
 
-node 'blog-puppet.local' inherits basenode {
+node 'ruby-193' inherits basenode {
   rvm_system_ruby {
    '1.9.3-p125': 
      ensure => 'present',
      default_use => true;
   }
-  include 'postgresql::v9-1'
-  include 'nginx'
+  rvm_gem {
+    'ruby-1.9.3-p125@global/bundler':
+      ensure => latest,
+      require => Rvm_system_ruby['1.9.3-p125'];
+  }
+}
+
+node 'ruby-193-web' inherits 'ruby-193' {
   iptables::role { "web-server": }
 }
+
+
+node 'en-copycopter' inherits 'ruby-193-web' {
+  include 'postgresql::v9-1'
+  rvm_gemset {
+    "ruby-1.9.3-p125@copycopter":
+      ensure => present,
+      require => Rvm_system_ruby['1.9.3-p125'];
+  }
+  nginx::unicorn_site { 'copycopter': }
+}
+

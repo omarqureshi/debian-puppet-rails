@@ -1,5 +1,3 @@
-# Servers
-export PUPPETMASTER=31.222.171.163
 # Well-known ports
 export DNS=53
 export FTP=21
