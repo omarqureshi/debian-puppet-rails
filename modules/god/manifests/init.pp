@@ -26,6 +26,9 @@ class god( $rails_environment, $role, $ruby, $ruby_type, $gemset ) {
   file { "/etc/init.d/god":
     source => "puppet:///modules/god/init",
     require => [Rvm_gem["$gemset_path/god"], File["/etc/default/god"], File["/usr/bin/god"]],
+    owner => "root",
+    group => "root",
+    mode => "755",
   }
 
   service {"god":
