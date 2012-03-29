@@ -23,9 +23,15 @@ class god( $rails_environment, $role, $ruby, $ruby_type, $gemset ) {
       require => Rvm_gemset["$gemset_path"],
   }
 
+  rvm_gem {
+    "$gemset_path/json":
+      ensure => present,
+      require => Rvm_gemset["$gemset_path"],
+  }
+
   file { "/etc/init.d/god":
     source => "puppet:///modules/god/init",
-    require => [Rvm_gem["$gemset_path/god"], File["/etc/default/god"], File["/usr/bin/god"]],
+    require => [Rvm_gem["$gemset_path/god"], Rvm_gem["$gemset_path/json"], File["/etc/default/god"], File["/usr/bin/god"]],
     owner => "root",
     group => "root",
     mode => "755",
