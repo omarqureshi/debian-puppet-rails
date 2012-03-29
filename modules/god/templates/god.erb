@@ -1,0 +1,5 @@
+#!/bin/bash
+source "/usr/local/rvm/scripts/rvm"
+
+rvm <%= gemset_path %>
+/usr/local/rvm/gems/<%= gemset_path %>/bin/god "$@"

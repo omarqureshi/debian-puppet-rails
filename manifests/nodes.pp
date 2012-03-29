@@ -10,7 +10,7 @@ node basenode {
   rvm_system_ruby {
    'ree-1.8.7-2012.02': 
      ensure => 'present',
-     default_use => false;
+     default_use => false,
   }
 }
 
@@ -18,12 +18,12 @@ node 'ruby-193' inherits basenode {
   rvm_system_ruby {
    '1.9.3-p125': 
      ensure => 'present',
-     default_use => true;
+     default_use => true,
   }
   rvm_gem {
     'ruby-1.9.3-p125@global/bundler':
       ensure => latest,
-      require => Rvm_system_ruby['1.9.3-p125'];
+      require => Rvm_system_ruby['1.9.3-p125'],
   }
 }
 
@@ -37,8 +37,15 @@ node 'en-copycopter' inherits 'ruby-193-web' {
   rvm_gemset {
     "ruby-1.9.3-p125@copycopter":
       ensure => present,
-      require => Rvm_system_ruby['1.9.3-p125'];
+      require => Rvm_system_ruby['1.9.3-p125'],
   }
   nginx::unicorn_site { 'copycopter': }
+  class { "god": 
+     rails_environment => "development",
+     role => "all",
+     ruby => "1.9.3-p125",
+     gemset => "copycopter",
+     ruby_type => "ruby",
+  }
 }
 
