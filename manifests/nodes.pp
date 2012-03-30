@@ -12,6 +12,7 @@ node basenode {
      ensure => 'present',
      default_use => false,
   }
+  package {"sendmail": ensure => installed }
 }
 
 node 'ruby-193' inherits basenode {
@@ -34,6 +35,7 @@ node 'ruby-193-web' inherits 'ruby-193' {
 
 node 'en-copycopter' inherits 'ruby-193-web' {
   include 'postgresql::v9-1'
+  postgresql::user { 'www': superuser => true, ensure => present, }
   rvm_gemset {
     "ruby-1.9.3-p125@copycopter":
       ensure => present,

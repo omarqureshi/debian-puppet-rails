@@ -3,6 +3,8 @@ class god( $rails_environment, $role, $ruby, $ruby_type, $gemset ) {
   $gemset_for_rvm = "$ruby@$gemset"
   $gemset_path = "${ruby_type}-${gemset_for_rvm}"
 
+  package { "libevent-dev": ensure => installed }
+
   file {"/etc/default/god":
     content => $config_location,
     owner => "root",
@@ -31,7 +33,13 @@ class god( $rails_environment, $role, $ruby, $ruby_type, $gemset ) {
 
   file { "/etc/init.d/god":
     source => "puppet:///modules/god/init",
-    require => [Rvm_gem["$gemset_path/god"], Rvm_gem["$gemset_path/json"], File["/etc/default/god"], File["/usr/bin/god"]],
+    require => [
+    	        Rvm_gem["$gemset_path/god"], 
+		Rvm_gem["$gemset_path/json"], 
+		File["/etc/default/god"], 
+		File["/usr/bin/god"], 
+	 	Package["libevent-dev"]
+	       ],
     owner => "root",
     group => "root",
     mode => "755",

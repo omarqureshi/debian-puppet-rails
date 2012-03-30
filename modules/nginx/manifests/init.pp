@@ -15,12 +15,15 @@ class nginx {
     notify  => Exec["reload nginx"],
     require => Package["nginx"],
   }
+  file { "/etc/nginx/sites-enabled/default":
+    ensure => absent,
+  }
 
   define unicorn_site($domain="", $host="") {
     include nginx
 
-    if $vhost_domain == "" {
-      $vhost_domain = $ip_address
+    if $domain == "" {
+      $vhost_domain = $ipaddress
     } else {
       $vhost_domain = $domain
     }
