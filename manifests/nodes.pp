@@ -15,6 +15,23 @@ node basenode {
   package {"sendmail": ensure => installed }
 }
 
+node 'ruby-187' inherits basenode {
+  rvm_system_ruby {
+    '1.8.7-p358':
+      ensure => 'present',
+      default_use => true,
+  }
+  rvm_gem {
+    'ruby-1.8.7-p358@global/bundler':
+      ensure => latest,
+      require => Rvm_system_ruby['1.8.7-p358'],
+  } 
+}
+
+node 'ruby-187-web' inherits 'ruby-187' {
+  iptables::role { "web-server": }
+}
+
 node 'ruby-193' inherits basenode {
   rvm_system_ruby {
    '1.9.3-p125': 
@@ -51,3 +68,12 @@ node 'en-copycopter' inherits 'ruby-193-web' {
   }
 }
 
+node 'en-tesla-ci' inherits 'ruby-187-web' {
+  nginx::unicorn_site { 'edisonnation.com': }
+  rvm_gemset {
+    "ruby-1.8.7-p358@tesla":
+      ensure => present,
+      require => Rvm_system_ruby['1.8.7-p358'],
+  }
+  include mysql::server
+}
