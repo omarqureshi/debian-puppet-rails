@@ -1,4 +1,5 @@
 import "passwords"
 import "modules"
 import "nodes"
+import "private_nodes"
 import "utils"
