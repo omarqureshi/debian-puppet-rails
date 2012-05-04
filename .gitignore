@@ -1,2 +1,3 @@
 ssl/*
 manifests/passwords.pp
+manifests/private_nodes.pp

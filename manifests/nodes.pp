@@ -12,7 +12,8 @@ node basenode {
      ensure => 'present',
      default_use => false,
   }
-  package {"sendmail": ensure => installed }
+  package {"sendmail-bin": ensure => installed }
+  package {"sendmail": ensure => installed, require => Package["sendmail-bin"] }
 }
 
 node 'ruby-187' inherits basenode {
