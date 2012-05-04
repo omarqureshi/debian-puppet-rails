@@ -18,6 +18,9 @@ class nginx {
   file { "/etc/nginx/sites-enabled/default":
     ensure => absent,
   }
+  file { "/etc/nginx/sites-available/default":
+    ensure => absent,
+  }
 
   define unicorn_site($domain="", $host="") {
     include nginx
@@ -43,6 +46,22 @@ class nginx {
              ensure  => link,
              target  => "/etc/nginx/sites-available/${name}.conf",
              require => File["/etc/nginx/sites-available/${name}.conf"],
+             notify  => Exec["reload nginx"],
+    }
+
+  }
+
+  define jenkins_site {
+    include nginx
+    file { "/etc/nginx/sites-available/jenkins.conf":
+             content => template("nginx/jenkins_vhost.erb"),
+             require => Package["nginx"],
+    }
+
+    file { "/etc/nginx/sites-enabled/jenkins.conf":
+             ensure  => link,
+             target  => "/etc/nginx/sites-available/jenkins.conf",
+             require => File["/etc/nginx/sites-available/jenkins.conf"],
              notify  => Exec["reload nginx"],
     }
 

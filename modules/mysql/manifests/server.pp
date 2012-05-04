@@ -1,5 +1,7 @@
 class mysql::server {
   package { "mysql-server": ensure => installed }
+  package { "libmysqlclient-dev": ensure => installed }
+
   service { "mysql":
     enable => true,
     ensure => running,
