@@ -10,11 +10,6 @@ class nginx {
     require     => Package["nginx"],
     refreshonly => true,
   }
-  file { "/etc/nginx/nginx.conf":
-    source  => "puppet:///modules/nginx/nginx.conf",
-    notify  => Exec["reload nginx"],
-    require => Package["nginx"],
-  }
   file { "/etc/nginx/sites-enabled/default":
     ensure => absent,
   }
@@ -22,7 +17,7 @@ class nginx {
     ensure => absent,
   }
 
-  define unicorn_site($domain="", $host="") {
+  define unicorn_site($user="www", $domain="", $host="") {
     include nginx
 
     if $domain == "" {
@@ -37,6 +32,8 @@ class nginx {
       $asset_host = $host
     }
 
+    $username = $user
+
     file { "/etc/nginx/sites-available/${name}.conf":
              content => template("nginx/unicorn_vhost.erb"),
              require => Package["nginx"],
@@ -48,6 +45,13 @@ class nginx {
              require => File["/etc/nginx/sites-available/${name}.conf"],
              notify  => Exec["reload nginx"],
     }
+
+    file { "/etc/nginx/nginx.conf":
+             content => template("nginx/nginx.conf.erb"),
+             notify  => Exec["reload nginx"],
+             require => Package["nginx"],
+    }
+
 
   }
 
@@ -64,6 +68,13 @@ class nginx {
              require => File["/etc/nginx/sites-available/jenkins.conf"],
              notify  => Exec["reload nginx"],
     }
+
+    file { "/etc/nginx/nginx.conf":
+             content => template("nginx/nginx.conf.erb"),
+             notify  => Exec["reload nginx"],
+             require => Package["nginx"],
+    }
+
 
   }
 }
