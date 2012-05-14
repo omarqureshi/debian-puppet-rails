@@ -92,7 +92,13 @@ node 'en-tesla-ci' inherits 'en-tesla' {
   package {"libmagick9-dev": ensure => installed }
 }
 
-node 'en-experimental' inherits 'en-tesla' {
+node 'en-db' inherits 'en-tesla' {
+  include mysql::server
+}
+
+node 'en-staging-db' inherits 'en-db' { }
+
+node 'en-app' inherits 'en-tesla' {
   nginx::unicorn_site { 'edisonnation.com': }
   package {"imagemagick": ensure => installed }
   package {"libmysqlclient-dev": ensure => installed }
@@ -110,5 +116,12 @@ node 'en-experimental' inherits 'en-tesla' {
       ensure => latest,
       require => Rvm_system_ruby['1.8.7-p358'],
   }
-
 }
+
+node 'en-staging-app' inherits 'en-app' { }
+
+node 'en-cache' inherits 'en-tesla' {
+  memcached::server {'edisonnation.com': memory => "128", }
+}
+
+node 'en-staging-cache' inherits 'en-cache' {}
