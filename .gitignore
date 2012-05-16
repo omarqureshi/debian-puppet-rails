@@ -1,3 +1,4 @@
 ssl/*
 manifests/passwords.pp
 manifests/private_nodes.pp
+modules/nginx/files/ssl/*
