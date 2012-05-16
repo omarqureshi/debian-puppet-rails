@@ -1,0 +1,28 @@
+server {
+  listen 80;
+  server_name 50.57.224.142;
+
+  keepalive_timeout 5;
+
+  root /var/www/<%= name %>/current/public;
+
+  location ~* \.(?:jpe?g|gif|png|ico|css|js|pdf|flv|mp4|swf|mp3|zip)$ {
+     expires max;
+         break;
+  }
+}
+
+server {
+  server_name 50.57.224.142;
+  listen 443;
+  ssl on;
+  ssl_certificate /opt/nginx/conf/server.crt;
+  ssl_certificate_key /opt/nginx/conf/server.key;
+
+  root /var/www/<%= name %>/current/public;
+
+  location ~* \.(?:jpe?g|gif|png|ico|css|js|pdf|flv|mp4|swf|mp3|zip)$ {
+     expires max;
+         break;
+  }
+}

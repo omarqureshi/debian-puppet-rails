@@ -1,0 +1,11 @@
+class dnsmasq($hosts=[]) {
+  $hostnames = $hosts
+  
+  package { "dnsmasq": ensure => installed }
+  service { "dnsmasq": 
+    enable => true,
+    ensure => running,
+    require => Package["dnsmasq"]
+  }
+
+}

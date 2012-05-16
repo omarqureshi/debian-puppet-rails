@@ -1,6 +1,5 @@
 class mysql::server {
   package { "mysql-server": ensure => installed }
-  package { "libmysqlclient-dev": ensure => installed }
   package { "sphinxsearch": ensure => installed }
 
   service { "mysql":
@@ -10,8 +9,8 @@ class mysql::server {
   }
 
   file { "/etc/mysql/my.cnf":
+    content => template("mysql/my.cnf.erb"),
     owner   => "mysql", group => "mysql",
-    source  => "puppet:///modules/mysql/my.cnf",
     notify  => Service["mysql"],
     require => Package["mysql-server"],
   }
