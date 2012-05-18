@@ -1,12 +1,8 @@
-upstream app_server {
-  server unix:/var/www/<%= name %>/shared/tmp/sockets/unicorn.sock fail_timeout=0;
-}
-
 server {
     listen 80;
     client_max_body_size 200M;
     server_name <%= vhost_domain %>;
-    root /var/www/<%= name %>/current/public;
+    root /var/www/<%= dir_name %>/current/public;
     try_files $uri/index.html $uri.html $uri @app;
 
    location @app {
@@ -24,10 +20,51 @@ server {
       proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
    }
    <% end %>
+
+   <% if passwd_loc != "" %>
+   auth_basic "Restricted";
+   auth_basic_user_file /etc/nginx/<%= passwd_name %>.passwd;
+   <% end %>
    error_page 500 502 503 504 /500.html;
    location = /500.html {
-      root /var/www/<%= name %>/current/public;
+      root /var/www/<%= dir_name %>/current/public;
     }
 
 }
 
+<% if ssl_loc != "" %>
+  server {
+    listen 443 ssl; 
+
+    client_max_body_size 200M;
+    server_name <%= vhost_domain %>;
+
+    keepalive_timeout 5;
+    root /var/www/<%= dir_name %>/current/public;
+
+    try_files $uri/index.html $uri.html $uri @app;
+
+    location @app {
+      proxy_read_timeout 300;
+      proxy_pass http://app_server;
+      proxy_redirect     off;
+      proxy_set_header   Host             $host;
+      proxy_set_header   X-Real-IP        $remote_addr;
+      proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto https; # for SSL, add this
+    }
+
+
+    location ~ ^/(assets|images|stylesheets|swfs|system)/ {
+      proxy_pass http://<%= asset_host %>:80;
+    }
+
+    ssl_certificate /etc/nginx/<%= key_name %>.crt;
+    ssl_certificate_key /etc/nginx/<%= key_name %>.key;
+
+    error_page 500 502 503 504 /500.html;
+    location = /500.html {
+      root /var/www/<%= dir_name %>/current/public;
+    }
+  }
+<% end %>

@@ -1,2 +1,4 @@
 iptables -A INPUT -i eth1 -p tcp -m tcp --dport ${MYSQL} -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 3306 -d 0/0 --dport 1024:65535 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -i eth1 -p tcp -m tcp --dport ${SPHINX} -j ACCEPT
+iptables -A OUTPUT -p tcp --sport ${MYSQL} -d 0/0 --dport 1024:65535 -m state --state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport ${SPHINX} -j ACCEPT

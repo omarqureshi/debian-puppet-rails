@@ -1,0 +1,2 @@
+iptables -A INPUT -i eth1 -p tcp -m tcp --dport ${MEMCACHED} -j ACCEPT
+iptables -A OUTPUT -p tcp --sport ${MEMCACHED} -m state --state ESTABLISHED -j ACCEPT

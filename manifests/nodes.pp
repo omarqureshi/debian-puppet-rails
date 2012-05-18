@@ -9,6 +9,7 @@ node 'en-puppet' {
       { hostname => "jobs.staging.edisonnation.com", ip => "10.183.170.224" },
       { hostname => "app.staging.edisonnation.com", ip => "10.183.173.128" },
       { hostname => "db.staging.edisonnation.com", ip => "10.183.169.227"},
+      { hostname => "app.1.staging.edisonnation.com", ip => "10.183.173.177"},
     ],
   }
 }
@@ -68,6 +69,7 @@ node 'en-copycopter' inherits 'ruby-193-web' {
       ensure => present,
       require => Rvm_system_ruby['1.9.3-p125'],
   }
+  nginx::unicorn_app {'copycopter': }
   nginx::unicorn_site { 'copycopter': }
   include copycopter_god_wrapper
 }
@@ -107,26 +109,55 @@ node 'en-db' inherits 'en-tesla' {
   iptables::role { "db-server": }
 }
 
-node 'en-staging-db' inherits 'en-db' { }
-node 'en-staging-jobs' inherits 'en-tesla' { }
+node 'en-staging-db' inherits 'en-db' { 
+  env_setup::rails_env { 'staging': }
+  env_setup::role { "db": }
+}
+
+node 'en-staging-jobs' inherits 'en-tesla' { 
+  env_setup::rails_env { 'staging': }
+  env_setup::role { "jobs": }
+}
 
 node 'en-staging-app' inherits 'en-tesla' { 
   $rails_environment = 'staging'
   include tesla_god_wrapper
-  $assethost = '173.45.227.152'
-  include tesla_unicorn_wrapper
   iptables::role { "web-server": }
+  nginx::unicorn_app { 'edisonnation.com': }
+  nginx::unicorn_site { 'edisonnation.com': 
+    assethost => 'assets.staging.edisonnation.com', 
+    domain => 'staging.edisonnation.com',
+    sslloc => 'en-staging', 
+    passwdloc => 'en-staging' }
+  nginx::unicorn_site { 'medical.edisonnation.com': 
+    assethost => 'staging.edisonnation.com',
+    domain => 'medical.staging.edisonnation.com',
+    sslloc => 'en-staging', 
+    passwdloc => 'en-staging', 
+    dirname => 'edisonnation.com' }
+  env_setup::rails_env { 'staging': }
+  env_setup::role { 'app': }
 }
 
 node 'en-staging-cache' inherits 'en-tesla' {
+  iptables::role { "memcached-server": }
   class {"memcached": memory => '128'}
+  env_setup::rails_env { 'staging': }
+  env_setup::role { 'cache': }
 }
 
 node 'en-staging-assets' inherits 'en-tesla' {
   $rails_environment = 'staging'
-  nginx::assets_site { 'edisonnation.com': }
+  nginx::assets_site { 'edisonnation.com': sslloc => 'en-staging' }
   include tesla_god_wrapper
+  env_setup::rails_env { 'staging': }
+  env_setup::role { 'assets': }
 }
+
+node 'id-blog' {
+  include ssh
+}
+
 
 class tesla_god_wrapper {
   class { "god":
@@ -138,10 +169,6 @@ class tesla_god_wrapper {
   }  
 }
 
-class tesla_unicorn_wrapper {
-  nginx::unicorn_site { 'edisonnation.com': }
-}
-
 class copycopter_god_wrapper {
   class { "god": 
      role => "all",
@@ -149,5 +176,22 @@ class copycopter_god_wrapper {
      gemset => "copycopter",
      ruby_type => "ruby",
      project => "copycopter",
+  }
+}
+
+class env_setup {
+
+  define rails_env {
+    file { '/etc/profile.d/rails_env':
+      ensure => present,
+      content => "export RAILS_ENV=$name"
+    }
+  }
+
+  define role {
+    file { '/etc/profile.d/role':
+      ensure => present,
+      content => "export ROLE=$name"
+    }
   }
 }

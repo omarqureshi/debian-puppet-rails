@@ -12,6 +12,7 @@ iptables -A OUTPUT -p tcp --dport ${WEB} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${WEB_SSL} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${PUPPET} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${MYSQL} -j ACCEPT
+
 # Drop some commonly probed ports
 iptables -A INPUT -p tcp --dport 23 -j DROP # telnet
 iptables -A INPUT -p tcp --dport 135 -j DROP # epmap

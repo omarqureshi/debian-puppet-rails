@@ -1,6 +1,6 @@
 server {
   listen 80;
-  server_name 50.57.224.142;
+  server_name <%= vhost_domain %>;
 
   keepalive_timeout 5;
 
@@ -12,12 +12,13 @@ server {
   }
 }
 
+<% if ssl_loc != "" %>
 server {
-  server_name 50.57.224.142;
+  server_name <%= vhost_domain %>;
   listen 443;
   ssl on;
-  ssl_certificate /opt/nginx/conf/server.crt;
-  ssl_certificate_key /opt/nginx/conf/server.key;
+  ssl_certificate /etc/nginx/server.crt;
+  ssl_certificate_key /etc/nginx/server.key;
 
   root /var/www/<%= name %>/current/public;
 
@@ -26,3 +27,4 @@ server {
          break;
   }
 }
+<% end %>

@@ -5,6 +5,7 @@ export GIT=9418
 export HEARTBEAT=694
 export IMAPS=993
 export IRC=6667
+export MEMCACHED=11211
 export MONIT=2828
 export MYSQL=3306
 export MYSQL_MASTER=3307
