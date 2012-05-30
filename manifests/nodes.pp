@@ -35,7 +35,7 @@ node basenode {
   package {"inotify-tools": ensure => installed }
   package {"htop": ensure => installed }
   package {"sendmail": ensure => installed, require => Package["sendmail-bin"] }
-
+  include "emacs"
 }
 
 node 'ruby-187' inherits basenode {
