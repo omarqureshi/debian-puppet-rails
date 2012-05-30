@@ -1,6 +1,6 @@
 Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
 
-node 'en-puppet' {
+node 'en-puppet' inherits basenode {
   class { "dnsmasq": 
     hosts => [ 
       { hostname => "puppet.edisonnation.com", ip => "10.176.71.36" },
