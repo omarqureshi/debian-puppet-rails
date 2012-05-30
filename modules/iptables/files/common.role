@@ -9,6 +9,7 @@ iptables -A OUTPUT -p udp --dport ${NTP} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${NTP} -j ACCEPT
 iptables -A OUTPUT -p udp --dport ${DNS} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${WEB} -j ACCEPT
+iptables -A OUTPUT -p tcp --dport ${GIT} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${WEB_SSL} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${PUPPET} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${MYSQL} -j ACCEPT

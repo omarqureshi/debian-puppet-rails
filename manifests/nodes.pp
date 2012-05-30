@@ -10,6 +10,11 @@ node 'en-puppet' {
       { hostname => "app.staging.edisonnation.com", ip => "10.183.173.128" },
       { hostname => "db.staging.edisonnation.com", ip => "10.183.169.227"},
       { hostname => "app.1.staging.edisonnation.com", ip => "10.183.173.177"},
+      { hostname => "app.dev.edisonnation.com", ip => "10.183.170.170"},
+      { hostname => "db.dev.edisonnation.com", ip => "10.183.170.140"},
+      { hostname => "assets.dev.edisonnation.com", ip => "10.183.160.83"},
+      { hostname => "cache.dev.edisonnation.com", ip => "10.183.170.179"},
+      { hostname => "jobs.dev.edisonnation.com", ip => "10.183.173.58"},
     ],
   }
 }
@@ -27,7 +32,10 @@ node basenode {
      default_use => false,
   }
   package {"sendmail-bin": ensure => installed }
+  package {"inotify-tools": ensure => installed }
+  package {"htop": ensure => installed }
   package {"sendmail": ensure => installed, require => Package["sendmail-bin"] }
+
 }
 
 node 'ruby-187' inherits basenode {
@@ -92,7 +100,7 @@ node 'en-tesla' inherits 'ruby-187' {
   rvm_gem {
     'ruby-1.8.7-p358@tesla/unicorn':
       ensure => latest,
-      require => Rvm_system_ruby['1.8.7-p358'],
+      require => [Rvm_system_ruby['1.8.7-p358'], Rvm_gemset["ruby-1.8.7-p358@tesla"]]
   }
 }
 
@@ -107,51 +115,102 @@ node 'en-tesla-ci' inherits 'en-tesla' {
 node 'en-db' inherits 'en-tesla' {
   include mysql::server
   iptables::role { "db-server": }
-}
-
-node 'en-staging-db' inherits 'en-db' { 
-  env_setup::rails_env { 'staging': }
   env_setup::role { "db": }
 }
 
-node 'en-staging-jobs' inherits 'en-tesla' { 
+node 'en-staging-db' inherits 'en-db' { 
+  class {"tesla_god_wrapper": role => "db", env => "staging" }
   env_setup::rails_env { 'staging': }
+}
+
+node 'en-dev-db' inherits 'en-db' {
+  class {"tesla_god_wrapper": role => "db", env => "development" }
+  env_setup::rails_env { 'development': }
+}
+
+node 'en-jobs' inherits 'en-tesla' {
   env_setup::role { "jobs": }
 }
 
-node 'en-staging-app' inherits 'en-tesla' { 
-  $rails_environment = 'staging'
-  include tesla_god_wrapper
+node 'en-staging-jobs' inherits 'en-jobs' {
+  class {"tesla_god_wrapper": role => "job", env => "staging" }
+  env_setup::rails_env { 'staging': }
+}
+
+node 'en-dev-jobs' inherits 'en-jobs' {
+  class {"tesla_god_wrapper": role => "job", env => "development" }
+  env_setup::rails_env { "development": }
+}
+
+node 'en-app' inherits 'en-tesla' {
   iptables::role { "web-server": }
   nginx::unicorn_app { 'edisonnation.com': }
+  env_setup::role { 'app': }
+}
+
+node 'en-staging-app' inherits 'en-app' { 
+  class {"tesla_god_wrapper": role => "app", env => "staging" }
   nginx::unicorn_site { 'edisonnation.com': 
     assethost => 'assets.staging.edisonnation.com', 
     domain => 'staging.edisonnation.com',
     sslloc => 'en-staging', 
     passwdloc => 'en-staging' }
   nginx::unicorn_site { 'medical.edisonnation.com': 
-    assethost => 'staging.edisonnation.com',
-    domain => 'medical.staging.edisonnation.com',
+    assethost => 'assets.staging.edisonnation.com',
+    domain => 'medical-staging.edisonnation.com',
     sslloc => 'en-staging', 
     passwdloc => 'en-staging', 
     dirname => 'edisonnation.com' }
   env_setup::rails_env { 'staging': }
-  env_setup::role { 'app': }
 }
 
-node 'en-staging-cache' inherits 'en-tesla' {
+node 'en-dev-app' inherits 'en-app' {
+  class {"tesla_god_wrapper": role => "app", env => "development" }
+  nginx::unicorn_site { 'edisonnation.com': 
+    assethost => 'assets.dev.edisonnation.com', 
+    domain => 'dev.edisonnation.com',
+    sslloc => 'en-staging', 
+    passwdloc => 'en-staging' }
+  nginx::unicorn_site { 'medical.edisonnation.com': 
+    assethost => 'assets.dev.edisonnation.com',
+    domain => 'medical-dev.edisonnation.com',
+    sslloc => 'en-staging', 
+    passwdloc => 'en-staging', 
+    dirname => 'edisonnation.com' }
+  env_setup::rails_env { 'development': }
+}
+
+node 'en-cache' inherits 'en-tesla' {
   iptables::role { "memcached-server": }
-  class {"memcached": memory => '128'}
-  env_setup::rails_env { 'staging': }
-  env_setup::role { 'cache': }
+  env_setup::role { 'cache': } 
 }
 
-node 'en-staging-assets' inherits 'en-tesla' {
-  $rails_environment = 'staging'
-  nginx::assets_site { 'edisonnation.com': sslloc => 'en-staging' }
-  include tesla_god_wrapper
+node 'en-staging-cache' inherits 'en-cache' {
+  class {"memcached": memory => '128'}
+  class {"tesla_god_wrapper": role => "cache", env => "staging" }
   env_setup::rails_env { 'staging': }
+}
+
+node 'en-dev-cache' inherits 'en-cache' {
+  class {"memcached": memory => '128'}
+  class {"tesla_god_wrapper": role => "cache", env => "development" }
+  env_setup::rails_env { 'development': }
+}
+
+node 'en-assets' inherits 'en-tesla' {
   env_setup::role { 'assets': }
+}
+
+node 'en-staging-assets' inherits 'en-assets' {
+  nginx::assets_site { 'edisonnation.com': sslloc => 'en-staging' }
+  class {"tesla_god_wrapper": role => "file", env => "staging" }
+  env_setup::rails_env { 'staging': }
+}
+
+node 'en-dev-assets' inherits 'en-assets' {
+  nginx::assets_site { 'edisonnation.com': sslloc => 'en-staging' }
+  class {"tesla_god_wrapper": role => "file", env => "staging" }
+  env_setup::rails_env { 'development': }
 }
 
 node 'id-blog' {
@@ -159,9 +218,10 @@ node 'id-blog' {
 }
 
 
-class tesla_god_wrapper {
+class tesla_god_wrapper($role, $env) {
   class { "god":
-     role => "app-server",
+     role => $role,
+     rails_environment => $env,
      ruby => "1.8.7-p358",
      gemset => "tesla",
      ruby_type => "ruby",

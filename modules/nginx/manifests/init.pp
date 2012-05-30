@@ -29,8 +29,7 @@ class nginx {
       $ssl_loc = ""
     } else {
       $ssl_loc = $sslloc
-      $key_name = "server"
-      add_ssl { "assets": ssl_loc => $ssl_loc, keyname => $key_name }
+      add_ssl { "assets": ssl_loc => $ssl_loc, keyname => "server", require => Package["nginx"] }
     }
 
     $username = $user
@@ -116,6 +115,7 @@ class nginx {
       file { "/etc/nginx/${passwd_name}.passwd": 
         source => "puppet:///modules/nginx/passwd/$passwd_loc/auth_passwd",
         notify => Exec["reload nginx"],
+        require => Package["nginx"],
       }
     }
 
@@ -164,10 +164,12 @@ class nginx {
     file { "/etc/nginx/${keyname}.crt":
       source => "puppet:///modules/nginx/ssl/${ssl_loc}/server.crt",
       notify => Exec["reload nginx"],
+      require => Package["nginx"],
     }
     file { "/etc/nginx/${keyname}.key":
       source => "puppet:///modules/nginx/ssl/${ssl_loc}/server.key",
       notify => Exec["reload nginx"],
+      require => Package["nginx"],
     }
   }
 }

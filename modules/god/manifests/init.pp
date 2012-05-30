@@ -1,5 +1,5 @@
-class god( $role, $ruby, $ruby_type, $gemset, $project ) {
-  $config_location = "GOD_CONFIG=/var/www/$project/current/config/god/$rails_environment/$role/all.god"
+class god( $role, $ruby, $ruby_type, $gemset, $project, $rails_environment ) {
+  $config_location = "GOD_CONFIG=/var/www/${project}/current/config/god/${rails_environment}/${role}-server/all.god"
   $gemset_for_rvm = "$ruby@$gemset"
   $gemset_path = "${ruby_type}-${gemset_for_rvm}"
 
