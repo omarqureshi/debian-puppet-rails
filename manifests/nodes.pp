@@ -39,7 +39,7 @@ node basenode {
   include "git"
   git::repo {'emacs-config':
     target => '/etc/emacs.d',
-    source => 'git@github.com:omarqureshi/emacs-config.git',
+    source => 'git://github.com/omarqureshi/emacs-config.git',
     user   => 'root',
     require => Package["emacs-snapshot"]
   }
@@ -222,6 +222,7 @@ node 'en-dev-cache' inherits 'en-cache' {
 
 node 'en-assets' inherits 'en-tesla' {
   env_setup::role { 'assets': }
+  iptables::role { "web-server": }
 }
 
 node 'en-staging-assets' inherits 'en-assets' {
@@ -232,7 +233,7 @@ node 'en-staging-assets' inherits 'en-assets' {
 
 node 'en-dev-assets' inherits 'en-assets' {
   nginx::assets_site { 'edisonnation.com': sslloc => 'en-staging' }
-  class {"tesla_god_wrapper": role => "file", env => "staging" }
+  class {"tesla_god_wrapper": role => "file", env => "development" }
   env_setup::rails_env { 'development': }
 }
 
