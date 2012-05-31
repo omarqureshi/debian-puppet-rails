@@ -21,7 +21,7 @@ class emacs {
     require => [Apt::Sources_list["emacs"], Apt::Sources_list["emacs-src"]]
   }
 
-  package {"emacs-goodies":
+  package {"emacs-goodies-el":
     ensure => installed,
     require => Package["emacs-snapshot"],
   }
