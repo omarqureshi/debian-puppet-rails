@@ -43,6 +43,11 @@ node basenode {
     user   => 'root',
     require => Package["emacs-snapshot"]
   }
+  file { "/etc/emacs.d":
+    mode => "777",
+    require => Git::Repo["emacs-config"],
+    recurse => true,
+  }
   file { '/root/.emacs.d':
     ensure => link,
     target => '/etc/emacs.d',
@@ -53,6 +58,7 @@ node basenode {
     target => '/etc/emacs.d',
     force => true,
   }
+  include 'ssh_keys'
 }
 
 node 'ruby-187' inherits basenode {
