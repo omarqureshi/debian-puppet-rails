@@ -38,7 +38,7 @@ node basenode {
   include "emacs"
   include "git"
   git::repo {'emacs-config':
-    target => '/etc/emacs.d/',
+    target => '/etc/emacs.d',
     source => 'git@github.com:omarqureshi/emacs-config.git',
     user   => 'root',
     require => Package["emacs-snapshot"]
