@@ -6,7 +6,7 @@
 	url = https://github.com/camptocamp/puppet-common.git
 [submodule "modules/apt"]
 	path = modules/apt
-	url = https://github.com/camptocamp/puppet-apt.git
+	url = https://github.com/omarqureshi/puppet-apt.git
 [submodule "modules/postgresql"]
 	path = modules/postgresql
 	url = git://github.com/omarqureshi/puppet-postgresql.git
