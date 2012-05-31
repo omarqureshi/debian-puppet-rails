@@ -46,10 +46,12 @@ node basenode {
   file { '/root/.emacs.d':
     ensure => link,
     target => '/etc/emacs.d',
+    force => true,
   }
   file { '/home/www/.emacs.d':
     ensure => link,
     target => '/etc/emacs.d',
+    force => true,
   }
 }
 
