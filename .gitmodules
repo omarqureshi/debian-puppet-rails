@@ -13,3 +13,6 @@
 [submodule "modules/augeas"]
 	path = modules/augeas
 	url = https://github.com/camptocamp/puppet-augeas.git
+[submodule "modules/git"]
+	path = modules/git
+	url = https://github.com/theforeman/puppet-git.git

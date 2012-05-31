@@ -36,6 +36,7 @@ node basenode {
   package {"htop": ensure => installed }
   package {"sendmail": ensure => installed, require => Package["sendmail-bin"] }
   include "emacs"
+  include "git"
 }
 
 node 'ruby-187' inherits basenode {
