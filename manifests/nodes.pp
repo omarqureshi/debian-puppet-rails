@@ -43,6 +43,14 @@ node basenode {
     user   => 'root',
     require => Package["emacs-snapshot"]
   }
+  file { '/root/.emacs.d':
+    ensure => link,
+    target => '/etc/emacs.d',
+  }
+  file { '/home/www/.emacs.d':
+    ensure => link,
+    target => '/etc/emacs.d',
+  }
 }
 
 node 'ruby-187' inherits basenode {
