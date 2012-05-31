@@ -37,6 +37,12 @@ node basenode {
   package {"sendmail": ensure => installed, require => Package["sendmail-bin"] }
   include "emacs"
   include "git"
+  git::repo {'emacs-config':
+    target => '/etc/emacs.d/',
+    source => 'git@github.com:omarqureshi/emacs-config.git',
+    user   => 'root',
+    require => Package["emacs-snapshot"]
+  }
 }
 
 node 'ruby-187' inherits basenode {
