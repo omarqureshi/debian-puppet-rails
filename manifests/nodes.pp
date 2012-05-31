@@ -59,6 +59,7 @@ node basenode {
     force => true,
   }
   include 'ssh_keys'
+  include 'bash_profile'
 }
 
 node 'ruby-187' inherits basenode {
