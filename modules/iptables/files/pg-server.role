@@ -1,0 +1,2 @@
+iptables -A INPUT -i eth1 -p tcp -m tcp --dport ${POSTGRES} -j ACCEPT
+iptables -A OUTPUT -p tcp --sport ${POSTGRES} -d 0/0 --dport 1024:65535 -m state --state ESTABLISHED -j ACCEPT

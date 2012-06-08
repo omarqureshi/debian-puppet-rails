@@ -1,4 +1,6 @@
 Exec { path => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ] }
+stage { 'first': before => Stage['main'] }
+stage { 'last': require => Stage['main'] }
 
 node 'en-puppet' inherits basenode {
   class { "dnsmasq": 
@@ -15,26 +17,40 @@ node 'en-puppet' inherits basenode {
       { hostname => "assets.dev.edisonnation.com", ip => "10.183.160.83"},
       { hostname => "cache.dev.edisonnation.com", ip => "10.183.170.179"},
       { hostname => "jobs.dev.edisonnation.com", ip => "10.183.173.58"},
+      { hostname => "db.production.translator.edisonnation.com", ip => "10.183.32.243"},
+      { hostname => "app.production.translator.edisonnation.com", ip => "10.183.37.2"},
     ],
   }
 }
 
 node basenode {
-  include "apt"
+  class {"apt":}
   include "backports"
   include "debian-pre"
   include "common"
   include "rvm"
-  include "augeas"
+#  include "augeas"
+  package {"augeas-lenses": ensure => absent }
+  package {"augeas-tools": ensure => absent }
+  package {"libaugeas-dev": ensure => absent }
+  package {"libaugeas-ruby1.8": ensure => absent }
+  package {"libaugeas0": ensure => absent }
+  package {"pkg-config": ensure => installed }
   rvm_system_ruby {
    'ree-1.8.7-2012.02': 
      ensure => 'present',
      default_use => false,
   }
+#  rvm_gem {
+#    'ree-1.8.7-2012.02@global/ruby-augeas':
+#      ensure => latest,
+#      require => [Rvm_system_ruby['ree-1.8.7-2012.02'], Package["libaugeas-dev"]],
+#  }
   package {"sendmail-bin": ensure => installed }
   package {"inotify-tools": ensure => installed }
   package {"htop": ensure => installed }
   package {"sendmail": ensure => installed, require => Package["sendmail-bin"] }
+#  package {"libaugeas-dev": ensure => installed}
   include "emacs"
   include "git"
   git::repo {'emacs-config':
@@ -60,6 +76,12 @@ node basenode {
   }
   include 'ssh_keys'
   include 'bash_profile'
+  file {"/var/www":
+    ensure => "directory",
+    owner => "www",
+    group => "www",
+    mode => 750,
+  }
 }
 
 node 'ruby-187' inherits basenode {
@@ -77,33 +99,53 @@ node 'ruby-187' inherits basenode {
 
 node 'ruby-193' inherits basenode {
   rvm_system_ruby {
-   '1.9.3-p125': 
+   '1.9.3-p194': 
      ensure => 'present',
      default_use => true,
   }
   rvm_gem {
-    'ruby-1.9.3-p125@global/bundler':
+    'ruby-1.9.3-p194@global/bundler':
       ensure => latest,
-      require => Rvm_system_ruby['1.9.3-p125'],
+      require => Rvm_system_ruby['1.9.3-p194'],
   }
 }
 
-node 'ruby-193-web' inherits 'ruby-193' {
-  iptables::role { "web-server": }
-}
-
-node 'en-copycopter' inherits 'ruby-193-web' {
-  $rails_environment = 'development'
-  include 'postgresql::v9-1'
-  postgresql::user { 'www': superuser => true, ensure => present, }
+node 'translator' inherits 'ruby-193' {
   rvm_gemset {
-    "ruby-1.9.3-p125@copycopter":
+    "ruby-1.9.3-p194@translator":
       ensure => present,
-      require => Rvm_system_ruby['1.9.3-p125'],
+      require => Rvm_system_ruby['1.9.3-p194'],
   }
-  nginx::unicorn_app {'copycopter': }
-  nginx::unicorn_site { 'copycopter': }
-  include copycopter_god_wrapper
+  rvm_gem {
+    'ruby-1.9.3-p194@translator/unicorn':
+      ensure => latest,
+      require => [Rvm_system_ruby['1.9.3-p194'], Rvm_gemset["ruby-1.9.3-p194@translator"]]
+  }
+}
+
+node 'translator-prod-db' inherits 'translator' {
+  class {'postgresql::debian::v9-1::repo': }
+  class {'postgresql::debian::v9-1::server': stage => 'last' }
+  class {'postgresql-config': stage => 'last'}
+
+  class {'www-postgres-user': stage => "last"}
+  iptables::role { "pg-server": }
+  env_setup::role { "db": }
+  env_setup::rails_env { 'production': }
+  class {"translator_god_wrapper": role => "db", env => "production" }
+}
+
+node 'translator-prod-app' inherits 'translator' {
+  class {'postgresql::debian::v9-1::repo': }
+  class {'postgresql::debian::v9-1::client': stage => 'last' }
+  nginx::unicorn_site { 'translator.edisonnation.com': 
+    domain => 'translator.edisonnation.com'
+  }
+  iptables::role { "web-server": }
+  nginx::unicorn_app { 'edisonnation.com': }
+  env_setup::role { 'app': }
+  env_setup::rails_env { 'production': }
+  class {"translator_god_wrapper": role => "app", env => "production" }
 }
 
 node 'en-tesla' inherits 'ruby-187' {
@@ -111,12 +153,6 @@ node 'en-tesla' inherits 'ruby-187' {
     "ruby-1.8.7-p358@tesla":
       ensure => present,
       require => Rvm_system_ruby['1.8.7-p358'],
-  }
-  file {"/var/www":
-    ensure => "directory",
-    owner => "www",
-    group => "www",
-    mode => 750,
   }
   package {"imagemagick": ensure => installed }
   package {"libmysqlclient-dev": ensure => installed }
@@ -254,14 +290,15 @@ class tesla_god_wrapper($role, $env) {
   }  
 }
 
-class copycopter_god_wrapper {
-  class { "god": 
-     role => "all",
-     ruby => "1.9.3-p125",
-     gemset => "copycopter",
+class translator_god_wrapper($role, $env) {
+  class { "god":
+     role => $role,
+     rails_environment => $env,
+     ruby => "1.9.3-p194",
+     gemset => "translator",
      ruby_type => "ruby",
-     project => "copycopter",
-  }
+     project => "translator.edisonnation.com",
+  }  
 }
 
 class env_setup {
