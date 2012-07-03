@@ -286,6 +286,11 @@ node 'id-blog' {
   include ssh
 }
 
+node 'en-production-db' inherits 'en-db' {
+  class {"tesla_god_wrapper": role => "db", env => "production" }
+  env_setup::rails_env { 'production': }
+}
+
 
 class tesla_god_wrapper($role, $env) {
   class { "god":
