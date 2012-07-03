@@ -19,6 +19,12 @@ node 'en-puppet' inherits basenode {
       { hostname => "jobs.dev.edisonnation.com", ip => "10.183.173.58"},
       { hostname => "db.production.translator.edisonnation.com", ip => "10.183.32.243"},
       { hostname => "app.production.translator.edisonnation.com", ip => "10.183.37.2"},
+      { hostname => "app1.production.edisonnation.com", ip => "67.207.148.133" },
+      { hostname => "app2.production.edisonnation.com", ip => "208.78.96.71" },
+      { hostname => "db.production.edisonnation.com", ip => "67.207.148.110" },
+      { hostname => "cache.production.edisonnation.com", ip => "173.45.227.253" },
+      { hostname => "jobs.production.edisonnation.com", ip => "173.45.231.187" },
+      { hostname => "assets.production.edisonnation.com", ip => "173.45.230.59" },
     ],
   }
 }
@@ -126,7 +132,7 @@ node 'translator' inherits 'ruby-193' {
 node 'translator-prod-db' inherits 'translator' {
   class {'postgresql::debian::v9-1::repo': }
   class {'postgresql::debian::v9-1::server': stage => 'last' }
-  class {'postgresql-config': stage => 'last'}
+  class {'translator-production-postgresql-config': stage => 'last'}
 
   class {'www-postgres-user': stage => "last"}
   iptables::role { "pg-server": }
@@ -139,10 +145,12 @@ node 'translator-prod-app' inherits 'translator' {
   class {'postgresql::debian::v9-1::repo': }
   class {'postgresql::debian::v9-1::client': stage => 'last' }
   nginx::unicorn_site { 'translator.edisonnation.com': 
-    domain => 'translator.edisonnation.com'
+    domain => 'translator.edisonnation.com',
+    dirname => 'translator.edisonnation.com'
   }
+  
   iptables::role { "web-server": }
-  nginx::unicorn_app { 'edisonnation.com': }
+  nginx::unicorn_app { 'translator.edisonnation.com': }
   env_setup::role { 'app': }
   env_setup::rails_env { 'production': }
   class {"translator_god_wrapper": role => "app", env => "production" }
@@ -234,7 +242,7 @@ node 'en-dev-app' inherits 'en-app' {
   nginx::unicorn_site { 'medical.edisonnation.com': 
     assethost => 'assets.dev.edisonnation.com',
     domain => 'medical-dev.edisonnation.com',
-    sslloc => 'en-staging', 
+    sslloc => 'en-medical', 
     passwdloc => 'en-staging', 
     dirname => 'edisonnation.com' }
   env_setup::rails_env { 'development': }
