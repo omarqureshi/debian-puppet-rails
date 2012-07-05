@@ -83,6 +83,10 @@ node basenode {
   }
 }
 
+node 'en-logs' inherits basenode {
+  package {"openjdk-6-jre": ensure => installed }
+}
+
 node 'ruby-187' inherits basenode {
   rvm_system_ruby {
     '1.8.7-p358':
