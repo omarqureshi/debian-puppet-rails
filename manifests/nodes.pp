@@ -294,11 +294,33 @@ node 'en-production-db' inherits 'en-db' {
 }
 
 node 'en-production-app1' inherits 'en-app' {
+  nginx::unicorn_site { 'edisonnation.com': 
+    assethost => 'assets.production.edisonnation.com', 
+    domain => 'edisonnation.com',
+    sslloc => 'en-staging', 
+    passwdloc => 'en-staging' }
+  nginx::unicorn_site { 'edisonnationmedical.com': 
+    assethost => 'assets.production.edisonnation.com',
+    domain => 'edisonnationmedical.com',
+    sslloc => 'en-medical', 
+    passwdloc => 'en-staging', 
+    dirname => 'edisonnationmedical.com' }
   env_setup::rails_env { 'staging': }
 }
 
 node 'en-production-app2' inherits 'en-app' {
- env_setup::rails_env { 'staging': } 
+  nginx::unicorn_site { 'edisonnation.com': 
+    assethost => 'assets.production.edisonnation.com', 
+    domain => 'edisonnation.com',
+    sslloc => 'en-staging', 
+    passwdloc => 'en-staging' }
+  nginx::unicorn_site { 'edisonnationmedical.com': 
+    assethost => 'assets.production.edisonnation.com',
+    domain => 'edisonnationmedical.com',
+    sslloc => 'en-medical', 
+    passwdloc => 'en-staging', 
+    dirname => 'edisonnationmedical.com' }
+  env_setup::rails_env { 'staging': }
 }
 
 node 'en-production-assets' inherits 'en-assets' {
