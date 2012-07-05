@@ -305,7 +305,7 @@ node 'en-production-assets' inherits 'en-assets' {
   env_setup::rails_env { 'staging': }
 }
 
-node 'en-production-jobs' inherts 'en-jobs' {
+node 'en-production-jobs' inherits 'en-jobs' {
   env_setup::rails_env { 'staging': }
 }
 
