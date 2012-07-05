@@ -324,6 +324,8 @@ node 'en-production-app2' inherits 'en-app' {
 }
 
 node 'en-production-assets' inherits 'en-assets' {
+  nginx::assets_site { 'edisonnation.com': sslloc => 'en-staging' }
+  class {"tesla_god_wrapper": role => "file", env => "staging" }
   env_setup::rails_env { 'staging': }
 }
 
@@ -331,6 +333,11 @@ node 'en-production-jobs' inherits 'en-jobs' {
   env_setup::rails_env { 'staging': }
 }
 
+node 'en-production-cache' inherits 'en-cache' {
+  class {"memcached": memory => '128'}
+  class {"tesla_god_wrapper": role => "cache", env => "staging" }
+  env_setup::rails_env { 'staging': }
+}
 
 class tesla_god_wrapper($role, $env) {
   class { "god":
