@@ -35,7 +35,6 @@ node basenode {
   include "debian-pre"
   include "common"
   include "rvm"
-#  include "augeas"
   package {"augeas-lenses": ensure => absent }
   package {"augeas-tools": ensure => absent }
   package {"libaugeas-dev": ensure => absent }
@@ -47,16 +46,10 @@ node basenode {
      ensure => 'present',
      default_use => false,
   }
-#  rvm_gem {
-#    'ree-1.8.7-2012.02@global/ruby-augeas':
-#      ensure => latest,
-#      require => [Rvm_system_ruby['ree-1.8.7-2012.02'], Package["libaugeas-dev"]],
-#  }
   package {"sendmail-bin": ensure => installed }
   package {"inotify-tools": ensure => installed }
   package {"htop": ensure => installed }
   package {"sendmail": ensure => installed, require => Package["sendmail-bin"] }
-#  package {"libaugeas-dev": ensure => installed}
   include "emacs"
   include "git"
   git::repo {'emacs-config':
@@ -214,6 +207,11 @@ node 'en-app' inherits 'en-tesla' {
   iptables::role { "web-server": }
   nginx::unicorn_app { 'edisonnation.com': }
   env_setup::role { 'app': }
+  rvm_gem {
+    'ruby-1.8.7-p358@tesla/aws-sdk':
+      ensure => latest,
+      require => [Rvm_system_ruby['1.8.7-p358'], Rvm_gemset["ruby-1.8.7-p358@tesla"]]
+  }
 }
 
 node 'en-staging-app' inherits 'en-app' { 
