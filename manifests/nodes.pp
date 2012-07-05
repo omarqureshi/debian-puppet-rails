@@ -293,6 +293,22 @@ node 'en-production-db' inherits 'en-db' {
   env_setup::rails_env { 'production': }
 }
 
+node 'en-production-app1' inherits 'en-app' {
+  
+}
+
+node 'en-production-app2' inherits 'en-app' {
+  
+}
+
+node 'en-production-assets' inherits 'en-assets' {
+  
+}
+
+node 'en-production-jobs' inherts 'en-jobs' {
+  
+}
+
 
 class tesla_god_wrapper($role, $env) {
   class { "god":
