@@ -294,19 +294,19 @@ node 'en-production-db' inherits 'en-db' {
 }
 
 node 'en-production-app1' inherits 'en-app' {
-  
+  env_setup::rails_env { 'staging': }
 }
 
 node 'en-production-app2' inherits 'en-app' {
-  
+ env_setup::rails_env { 'staging': } 
 }
 
 node 'en-production-assets' inherits 'en-assets' {
-  
+  env_setup::rails_env { 'staging': }
 }
 
 node 'en-production-jobs' inherts 'en-jobs' {
-  
+  env_setup::rails_env { 'staging': }
 }
 
 
