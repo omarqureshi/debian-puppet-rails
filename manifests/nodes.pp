@@ -19,12 +19,12 @@ node 'en-puppet' inherits basenode {
       { hostname => "jobs.dev.edisonnation.com", ip => "10.183.173.58"},
       { hostname => "db.production.translator.edisonnation.com", ip => "10.183.32.243"},
       { hostname => "app.production.translator.edisonnation.com", ip => "10.183.37.2"},
-      { hostname => "app1.production.edisonnation.com", ip => "67.207.148.133" },
-      { hostname => "app2.production.edisonnation.com", ip => "208.78.96.71" },
-      { hostname => "db.production.edisonnation.com", ip => "67.207.148.110" },
-      { hostname => "cache.production.edisonnation.com", ip => "173.45.227.253" },
-      { hostname => "jobs.production.edisonnation.com", ip => "173.45.231.187" },
-      { hostname => "assets.production.edisonnation.com", ip => "173.45.230.59" },
+      { hostname => "app1.production.edisonnation.com", ip => "10.176.42.95" },
+      { hostname => "app2.production.edisonnation.com", ip => "10.176.42.155" },
+      { hostname => "db.production.edisonnation.com", ip => "10.176.42.86" },
+      { hostname => "cache.production.edisonnation.com", ip => "10.183.173.51" },
+      { hostname => "jobs.production.edisonnation.com", ip => "10.183.170.51" },
+      { hostname => "assets.production.edisonnation.com", ip => "10.183.173.1" },
     ],
   }
 }
