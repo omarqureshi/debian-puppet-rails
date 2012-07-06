@@ -294,6 +294,7 @@ node 'en-production-db' inherits 'en-db' {
 }
 
 node 'en-production-app1' inherits 'en-app' {
+  class {"tesla_god_wrapper": role => "app", env => "development" }
   nginx::unicorn_site { 'edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
     domain => 'edisonnation.com',
@@ -305,10 +306,11 @@ node 'en-production-app1' inherits 'en-app' {
     sslloc => 'en-medical', 
     passwdloc => 'en-staging', 
     dirname => 'edisonnationmedical.com' }
-  env_setup::rails_env { 'staging': }
+  env_setup::rails_env { 'development': }
 }
 
 node 'en-production-app2' inherits 'en-app' {
+  class {"tesla_god_wrapper": role => "app", env => "development" }
   nginx::unicorn_site { 'edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
     domain => 'edisonnation.com',
@@ -320,7 +322,7 @@ node 'en-production-app2' inherits 'en-app' {
     sslloc => 'en-medical', 
     passwdloc => 'en-staging', 
     dirname => 'edisonnationmedical.com' }
-  env_setup::rails_env { 'staging': }
+  env_setup::rails_env { 'development': }
 }
 
 node 'en-production-assets' inherits 'en-assets' {
