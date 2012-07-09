@@ -294,51 +294,48 @@ node 'en-production-db' inherits 'en-db' {
 }
 
 node 'en-production-app1' inherits 'en-app' {
-  class {"tesla_god_wrapper": role => "app", env => "development" }
+  class {"tesla_god_wrapper": role => "app", env => "production" }
   nginx::unicorn_site { 'edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
     domain => 'edisonnation.com',
-    sslloc => 'en-staging', 
-    passwdloc => 'en-medical' }
+    sslloc => 'en.com' }
   nginx::unicorn_site { 'edisonnationmedical.com': 
     assethost => 'assets.production.edisonnation.com',
     domain => 'edisonnationmedical.com',
-    sslloc => 'en-medical', 
-    passwdloc => 'en-medical', 
+    sslloc => 'en-medical',  
     dirname => 'edisonnationmedical.com' }
-  env_setup::rails_env { 'development': }
+  env_setup::rails_env { 'production': }
 }
 
 node 'en-production-app2' inherits 'en-app' {
-  class {"tesla_god_wrapper": role => "app", env => "development" }
+  class {"tesla_god_wrapper": role => "app", env => "production" }
   nginx::unicorn_site { 'edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
     domain => 'edisonnation.com',
-    sslloc => 'en-staging', 
-    passwdloc => 'en-medical' }
+    sslloc => 'en.com' }
   nginx::unicorn_site { 'edisonnationmedical.com': 
     assethost => 'assets.production.edisonnation.com',
     domain => 'edisonnationmedical.com',
-    sslloc => 'en-medical', 
-    passwdloc => 'en-medical', 
+    sslloc => 'en-medical',  
     dirname => 'edisonnationmedical.com' }
-  env_setup::rails_env { 'development': }
+  env_setup::rails_env { 'production': }
 }
 
 node 'en-production-assets' inherits 'en-assets' {
-  nginx::assets_site { 'edisonnation.com': sslloc => 'en-staging' }
-  class {"tesla_god_wrapper": role => "file", env => "staging" }
-  env_setup::rails_env { 'staging': }
+  nginx::assets_site { 'edisonnation.com': sslloc => 'en.com' }
+  nginx::assets_site { 'edisonnationmedical.com': sslloc => 'en-medical' }
+  class {"tesla_god_wrapper": role => "file", env => "production" }
+  env_setup::rails_env { 'production': }
 }
 
 node 'en-production-jobs' inherits 'en-jobs' {
-  env_setup::rails_env { 'staging': }
+  env_setup::rails_env { 'production': }
 }
 
 node 'en-production-cache' inherits 'en-cache' {
   class {"memcached": memory => '128'}
-  class {"tesla_god_wrapper": role => "cache", env => "staging" }
-  env_setup::rails_env { 'staging': }
+  class {"tesla_god_wrapper": role => "cache", env => "production" }
+  env_setup::rails_env { 'production': }
 }
 
 class tesla_god_wrapper($role, $env) {
