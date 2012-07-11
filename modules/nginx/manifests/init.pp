@@ -160,6 +160,23 @@ class nginx {
 
   }
 
+  define add_redirect($redirect) {
+    $server_name = $name
+    $redirect_location = $redirect
+
+    file {"/etc/nginx/sites-available/redirect_${server_name}.conf":
+           content => template("nginx/redirect.erb"),
+           require => Package["nginx"],
+    }
+
+    file {"/etc/nginx/sites-enabled/redirect_${server_name}.conf":
+           ensure => link,
+           target => "/etc/nginx/sites-available/redirect_${server_name}.conf",
+           require => File["/etc/nginx/sites-available/redirect_${server_name}.conf"],
+           notify => Exec["reload nginx"],
+    }
+  }
+
   define add_ssl($ssl_loc, $keyname) {
     file { "/etc/nginx/${keyname}.crt":
       source => "puppet:///modules/nginx/ssl/${ssl_loc}/server.crt",

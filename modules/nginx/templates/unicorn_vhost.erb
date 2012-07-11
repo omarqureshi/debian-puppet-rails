@@ -1,9 +1,4 @@
 server {
-    server_name  <%= "www." + vhost_domain%>;
-    rewrite ^(.*) <%= "http://" + vhost_domain %>$1 permanent;
-}
-
-server {
     listen 80;
     client_max_body_size 200M;
     server_name <%= vhost_domain %>;
