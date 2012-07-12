@@ -3,9 +3,3 @@ server {
        server_name <%= server_name %>;
        rewrite ^(.*) http://<%= redirect_location %>$1 permanent;
 }
-
-server {
-       listen 443;
-       server_name <%= server_name %>;
-       rewrite ^(.*) https://<%= redirect_location %>$1 permanent;
-}

@@ -293,11 +293,11 @@ node 'en-production-db' inherits 'en-db' {
   env_setup::rails_env { 'production': }
 }
 
-node 'en-production-app1' inherits 'en-app' {
+node 'en-production-app' inherits 'en-app' {
   class {"tesla_god_wrapper": role => "app", env => "production" }
-  nginx::unicorn_site { 'edisonnation.com': 
+  nginx::unicorn_site { 'www.edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
-    domain => 'edisonnation.com',
+    domain => 'www.edisonnation.com',
     sslloc => 'en.com' }
   nginx::unicorn_site { 'edisonnationmedical.com': 
     assethost => 'assets.production.edisonnation.com',
@@ -305,20 +305,14 @@ node 'en-production-app1' inherits 'en-app' {
     sslloc => 'en-medical',  
     dirname => 'edisonnationmedical.com' }
   env_setup::rails_env { 'production': }
+  nginx::add_redirect { 'edisonnation.com': redirect => 'www.edisonnation.com' }
+  nginx::add_redirect { 'www.edisonnationmedical.com': redirect => 'edisonnationmedical.com' }
 }
 
-node 'en-production-app2' inherits 'en-app' {
-  class {"tesla_god_wrapper": role => "app", env => "production" }
-  nginx::unicorn_site { 'edisonnation.com': 
-    assethost => 'assets.production.edisonnation.com', 
-    domain => 'edisonnation.com',
-    sslloc => 'en.com' }
-  nginx::unicorn_site { 'edisonnationmedical.com': 
-    assethost => 'assets.production.edisonnation.com',
-    domain => 'edisonnationmedical.com',
-    sslloc => 'en-medical',  
-    dirname => 'edisonnationmedical.com' }
-  env_setup::rails_env { 'production': }
+node 'en-production-app1' inherits 'en-production-app' {
+}
+
+node 'en-production-app2' inherits 'en-production-app' {
 }
 
 node 'en-production-assets' inherits 'en-assets' {
@@ -329,6 +323,7 @@ node 'en-production-assets' inherits 'en-assets' {
 }
 
 node 'en-production-jobs' inherits 'en-jobs' {
+  class {"tesla_god_wrapper": role => "job", env => "production" }
   env_setup::rails_env { 'production': }
 }
 
