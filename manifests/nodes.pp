@@ -327,6 +327,7 @@ node 'en-production-assets' inherits 'en-assets' {
 }
 
 node 'en-production-jobs' inherits 'en-jobs' {
+  class {"tesla_god_wrapper": role => "cache", env => "production" }
   env_setup::rails_env { 'production': }
 }
 
