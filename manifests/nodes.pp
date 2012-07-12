@@ -317,7 +317,6 @@ node 'en-production-app2' inherits 'en-production-app' {
 
 node 'en-production-assets' inherits 'en-assets' {
   nginx::assets_site { 'edisonnation.com': sslloc => 'en.com' }
-  nginx::assets_site { 'edisonnationmedical.com': sslloc => 'en-medical' }
   class {"tesla_god_wrapper": role => "file", env => "production" }
   env_setup::rails_env { 'production': }
 }
