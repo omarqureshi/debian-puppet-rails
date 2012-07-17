@@ -7,6 +7,7 @@ export IMAPS=993
 export IRC=6667
 export MEMCACHED=11211
 export MONIT=2828
+export MONGODB=27017
 export MYSQL=3306
 export MYSQL_MASTER=3307
 export NRPE=5666

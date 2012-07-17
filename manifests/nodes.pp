@@ -85,7 +85,7 @@ node basenode {
 
 node 'en-logs' inherits basenode {
   package {"openjdk-6-jre": ensure => installed }
-  package {"mongodb": ensure => installed }
+  class {"mongodb": auth => true }
   wget::fetch {"elasticsearch":
     source => "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-0.19.8.deb",
     destination => "/root/elasticsearch.deb",
@@ -100,16 +100,8 @@ node 'en-logs' inherits basenode {
     ensure => running,
     require => Package["elasticsearch"]
   }
-  $graylog_ver = "0.9.6p1"
-  wget::fetch {"graylog2":
-    source => "https://github.com/downloads/Graylog2/graylog2-server/graylog2-server-${graylog_ver}.tar.gz",
-    destination => "/root/graylog2.tar.gz"
-  }
-  exec { "untar_graylog":
-    command => "tar xzf /root/graylog2.tar.gz",
-    creates => "/root/graylog2-server-${graylog_ver}",
-    require => Wget::Fetch["graylog2"],
-  }
+  include 'graylog'
+  iptables::role { "graylog": }
 }
 
 node 'ruby-187' inherits basenode {
@@ -122,7 +114,7 @@ node 'ruby-187' inherits basenode {
     'ruby-1.8.7-p358@global/bundler':
       ensure => latest,
       require => Rvm_system_ruby['1.8.7-p358'],
-  } 
+  }
 }
 
 node 'ruby-193' inherits basenode {
@@ -191,6 +183,10 @@ node 'en-tesla' inherits 'ruby-187' {
     'ruby-1.8.7-p358@tesla/unicorn':
       ensure => latest,
       require => [Rvm_system_ruby['1.8.7-p358'], Rvm_gemset["ruby-1.8.7-p358@tesla"]]
+  }
+  logrotate::file {"tesla-rails":
+    log => "/var/www/edisonnation.com/current/log/*.log",
+    options => ["daily", "size 100M", "missingok", "rotate 15", "compress", "delaycompress", "notifempty", "copytruncate"]
   }
 }
 
