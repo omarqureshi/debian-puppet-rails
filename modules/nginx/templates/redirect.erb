@@ -3,3 +3,18 @@ server {
        server_name <%= server_name %>;
        rewrite ^(.*) http://<%= redirect_location %>$1 permanent;
 }
+
+server {
+       listen 443;
+       server_name <%= server_name %>;
+       ssl on;
+       rewrite ^(.*) http://<%= redirect_location %>$1 permanent;
+       proxy_set_header X_FORWARDED_PROTO https;
+       proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header  Host $http_host;
+       proxy_set_header  X-Url-Scheme $scheme;
+       proxy_redirect    off;
+       proxy_max_temp_file_size 0;
+       ssl_certificate /etc/nginx/<%= redirect_location %>.crt;
+       ssl_certificate_key /etc/nginx/<%= redirect_location %>.key;
+}

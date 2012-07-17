@@ -85,6 +85,31 @@ node basenode {
 
 node 'en-logs' inherits basenode {
   package {"openjdk-6-jre": ensure => installed }
+  package {"mongodb": ensure => installed }
+  wget::fetch {"elasticsearch":
+    source => "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-0.19.8.deb",
+    destination => "/root/elasticsearch.deb",
+  }
+  package {"elasticsearch":
+    ensure => installed,
+    provider => dpkg,
+    source => "/root/elasticsearch.deb",
+    require => Wget::Fetch["elasticsearch"],
+  }
+  service {"elasticsearch":
+    ensure => running,
+    require => Package["elasticsearch"]
+  }
+  $graylog_ver = "0.9.6p1"
+  wget::fetch {"graylog2":
+    source => "https://github.com/downloads/Graylog2/graylog2-server/graylog2-server-${graylog_ver}.tar.gz",
+    destination => "/root/graylog2.tar.gz"
+  }
+  exec { "untar_graylog":
+    command => "tar xzf /root/graylog2.tar.gz",
+    creates => "/root/graylog2-server-${graylog_ver}",
+    require => Wget::Fetch["graylog2"],
+  }
 }
 
 node 'ruby-187' inherits basenode {
@@ -295,24 +320,24 @@ node 'en-production-db' inherits 'en-db' {
 
 node 'en-production-app' inherits 'en-app' {
   class {"tesla_god_wrapper": role => "app", env => "production" }
-  nginx::unicorn_site { 'www.edisonnation.com': 
+  env_setup::rails_env { 'production': }
+}
+
+node 'en-production-app1' inherits 'en-production-app' {
+    nginx::unicorn_site { 'www.edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
     domain => 'www.edisonnation.com',
     sslloc => 'en.com' }
-  nginx::unicorn_site { 'edisonnationmedical.com': 
+    nginx::add_redirect { 'edisonnation.com': redirect => 'www.edisonnation.com' }
+}
+
+node 'en-production-app2' inherits 'en-production-app' {
+    nginx::unicorn_site { 'edisonnationmedical.com': 
     assethost => 'assets.production.edisonnation.com',
     domain => 'edisonnationmedical.com',
     sslloc => 'en-medical',  
     dirname => 'edisonnationmedical.com' }
-  env_setup::rails_env { 'production': }
-  nginx::add_redirect { 'edisonnation.com': redirect => 'www.edisonnation.com' }
-  nginx::add_redirect { 'www.edisonnationmedical.com': redirect => 'edisonnationmedical.com' }
-}
-
-node 'en-production-app1' inherits 'en-production-app' {
-}
-
-node 'en-production-app2' inherits 'en-production-app' {
+    nginx::add_redirect { 'www.edisonnationmedical.com': redirect => 'edisonnationmedical.com' }
 }
 
 node 'en-production-assets' inherits 'en-assets' {
