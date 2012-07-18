@@ -83,7 +83,7 @@ node basenode {
   }
 }
 
-node 'en-logs' inherits basenode {
+node 'en-logs' inherits 'ruby-193' {
   package {"openjdk-6-jre": ensure => installed }
   class {"mongodb": auth => true }
   wget::fetch {"elasticsearch":
@@ -102,6 +102,24 @@ node 'en-logs' inherits basenode {
   }
   include 'graylog'
   iptables::role { "graylog": }
+  nginx::unicorn_app { 'logs.edisonnation.com':
+    require => Class["graylog"],
+  }
+  nginx::unicorn_site { 'logs.edisonnation.com': 
+    domain => 'logs.edisonnation.com',
+    dirname => 'logs.edisonnation.com'
+  }
+  rvm_gemset {
+    "ruby-1.9.3-p194@graylog":
+      ensure => present,
+      require => Rvm_system_ruby['1.9.3-p194'],
+  }
+  rvm_gem {
+    'ruby-1.9.3-p194@graylog/unicorn':
+      ensure => latest,
+      require => [Rvm_system_ruby['1.9.3-p194'], Rvm_gemset["ruby-1.9.3-p194@graylog"]]
+  }
+
 }
 
 node 'ruby-187' inherits basenode {
@@ -373,6 +391,17 @@ class translator_god_wrapper($role, $env) {
      ruby_type => "ruby",
      project => "translator.edisonnation.com",
   }  
+}
+
+class graylog_god_wrapper($role, $env) {
+  class { "god":
+     role => $role,
+     rails_environment => $env,
+     ruby => "1.9.3-p194",
+     gemset => "graylog",
+     ruby_type => "ruby",
+     project => "logs.edisonnation.com",
+  }
 }
 
 class env_setup {

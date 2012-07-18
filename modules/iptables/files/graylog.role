@@ -1,2 +1,6 @@
 iptables -A INPUT -i eth1 -p tcp -m tcp --dport ${MONGODB} -j ACCEPT
 iptables -A OUTPUT -p tcp --sport ${MONGODB} -d 0/0 --dport 1024:65535 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport ${WEB} --tcp-flags SYN,RST,ACK SYN -j ACCEPT
+iptables -A INPUT -p tcp -m tcp --dport ${WEB_SSL} --tcp-flags SYN,RST,ACK SYN -j ACCEPT
+iptables -A OUTPUT -p tcp --sport ${WEB} -j ACCEPT
+iptables -A OUTPUT -p tcp --sport ${WEB_SSL} -j ACCEPT
