@@ -21,10 +21,12 @@ node 'en-puppet' inherits basenode {
       { hostname => "app.production.translator.edisonnation.com", ip => "10.183.37.2"},
       { hostname => "app1.production.edisonnation.com", ip => "10.176.42.95" },
       { hostname => "app2.production.edisonnation.com", ip => "10.176.42.155" },
+      { hostname => "app3.production.edisonnation.com", ip => "10.183.162.189" },
       { hostname => "db.production.edisonnation.com", ip => "10.176.42.86" },
       { hostname => "cache.production.edisonnation.com", ip => "10.183.173.51" },
       { hostname => "jobs.production.edisonnation.com", ip => "10.183.170.51" },
       { hostname => "assets.production.edisonnation.com", ip => "10.183.173.1" },
+      { hostname => "logs.edisonnation.com", ip => "10.183.170.37" },
     ],
   }
 }
@@ -81,10 +83,10 @@ node basenode {
     group => "www",
     mode => 750,
   }
+  package {"openjdk-6-jre": ensure => installed }
 }
 
 node 'en-logs' inherits 'ruby-193' {
-  package {"openjdk-6-jre": ensure => installed }
   class {"mongodb": auth => true }
   wget::fetch {"elasticsearch":
     source => "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-0.19.8.deb",
@@ -100,7 +102,8 @@ node 'en-logs' inherits 'ruby-193' {
     ensure => running,
     require => Package["elasticsearch"]
   }
-  include 'graylog'
+  
+  class {'graylog': dirname => 'logs.edisonnation.com', www_user => "www" }
   iptables::role { "graylog": }
   nginx::unicorn_app { 'logs.edisonnation.com':
     require => Class["graylog"],
@@ -119,7 +122,9 @@ node 'en-logs' inherits 'ruby-193' {
       ensure => latest,
       require => [Rvm_system_ruby['1.9.3-p194'], Rvm_gemset["ruby-1.9.3-p194@graylog"]]
   }
-
+  class {"graylog_god_wrapper": role => "app", env => "production" }
+  env_setup::rails_env { 'production': }
+  env_setup::role { 'app': }
 }
 
 node 'ruby-187' inherits basenode {
@@ -206,14 +211,17 @@ node 'en-tesla' inherits 'ruby-187' {
     log => "/var/www/edisonnation.com/current/log/*.log",
     options => ["daily", "size 100M", "missingok", "rotate 15", "compress", "delaycompress", "notifempty", "copytruncate"]
   }
+  include 'rsyslog'
+  package {"wkhtmltopdf": ensure => installed}
 }
 
 node 'en-tesla-ci' inherits 'en-tesla' {
-  nginx::jenkins_site { 'edisonnation.com': }
+  nginx::jenkins_site { 'edisonnation.com':
+    passwdloc => 'en-staging', 
+  }
   include mysql::server
   include jenkins
-  package {"imagemagick": ensure => installed }
-  package {"libmagick9-dev": ensure => installed }
+  iptables::role { "web-server": }
 }
 
 node 'en-db' inherits 'en-tesla' {
@@ -233,6 +241,7 @@ node 'en-dev-db' inherits 'en-db' {
 }
 
 node 'en-jobs' inherits 'en-tesla' {
+  iptables::role { "web-server": }
   env_setup::role { "jobs": }
 }
 
@@ -255,6 +264,8 @@ node 'en-app' inherits 'en-tesla' {
       ensure => latest,
       require => [Rvm_system_ruby['1.8.7-p358'], Rvm_gemset["ruby-1.8.7-p358@tesla"]]
   }
+  include 'logstashd'
+  logstashd::nginx {"nginx": }
 }
 
 node 'en-staging-app' inherits 'en-app' { 
@@ -338,6 +349,14 @@ node 'en-production-app' inherits 'en-app' {
 }
 
 node 'en-production-app1' inherits 'en-production-app' {
+    nginx::unicorn_site { 'www.edisonnation.com': 
+    assethost => 'assets.production.edisonnation.com', 
+    domain => 'www.edisonnation.com',
+    sslloc => 'en.com' }
+    nginx::add_redirect { 'edisonnation.com': redirect => 'www.edisonnation.com' }
+}
+
+node 'en-production-app3' inherits 'en-production-app' {
     nginx::unicorn_site { 'www.edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
     domain => 'www.edisonnation.com',

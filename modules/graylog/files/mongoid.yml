@@ -1,0 +1,6 @@
+production:
+  host: localhost
+  port: 27017
+  username: grayloguser
+  password: 123
+  database: graylog2

@@ -6,6 +6,8 @@ iptables -A OUTPUT -p tcp --dport ${SSH} -j ACCEPT
 iptables -A OUTPUT -p tcp --sport ${SSH} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${SMTP} -j ACCEPT
 iptables -A OUTPUT -p udp --dport ${NTP} -j ACCEPT
+iptables -A OUTPUT -p udp --dport ${RSYSLOG} -j ACCEPT
+iptables -A OUTPUT -p udp --sport ${RSYSLOG} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${NTP} -j ACCEPT
 iptables -A OUTPUT -p udp --dport ${DNS} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${WEB} -j ACCEPT
@@ -14,6 +16,8 @@ iptables -A OUTPUT -p tcp --dport ${WEB_SSL} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${PUPPET} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${MYSQL} -j ACCEPT
 iptables -A OUTPUT -p tcp --dport ${POSTGRES} -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 465 -j ACCEPT
+iptables -A OUTPUT -p udp --dport 12201 -j ACCEPT
 
 # Drop some commonly probed ports
 iptables -A INPUT -p tcp --dport 23 -j DROP # telnet

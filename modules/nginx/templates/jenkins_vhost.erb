@@ -17,4 +17,14 @@ server {
             break;
         }
     }
+
+   <% if passwd_loc != "" %>
+   auth_basic "Restricted";
+   auth_basic_user_file /etc/nginx/<%= passwd_name %>.passwd;
+   <% end %>
+   error_page 500 502 503 504 /500.html;
+   location = /500.html {
+      root /var/www/<%= dir_name %>/current/public;
+    }
+
 }

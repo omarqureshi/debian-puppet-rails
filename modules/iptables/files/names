@@ -14,6 +14,7 @@ export NRPE=5666
 export NTP=123
 export POSTGRES=5432
 export PUPPET=8140
+export RSYSLOG=514
 export RSYNCD=873
 export SMTP=25
 export SPHINX=3312

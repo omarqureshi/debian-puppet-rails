@@ -4,3 +4,6 @@ iptables -A INPUT -p tcp -m tcp --dport ${WEB} --tcp-flags SYN,RST,ACK SYN -j AC
 iptables -A INPUT -p tcp -m tcp --dport ${WEB_SSL} --tcp-flags SYN,RST,ACK SYN -j ACCEPT
 iptables -A OUTPUT -p tcp --sport ${WEB} -j ACCEPT
 iptables -A OUTPUT -p tcp --sport ${WEB_SSL} -j ACCEPT
+iptables -A INPUT -p udp --dport ${RSYSLOG} -j ACCEPT
+iptables -A INPUT -p udp --sport ${RSYSLOG} -j ACCEPT
+iptables -A INPUT -p udp --dport 12201 -j ACCEPT

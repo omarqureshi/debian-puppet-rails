@@ -135,10 +135,29 @@ class nginx {
 
   }
 
-  define jenkins_site($user="www") {
+  define jenkins_site($user="www", $passwdloc="") {
     $username = $user
-
     include nginx
+
+    if $dirname == "" {
+      $dir_name = $name
+    } else {
+      $dir_name = $dirname
+    }
+    
+    if $passwdloc == "" {
+      $passwd_loc = ""
+    } else {
+      $passwd_loc = $passwdloc
+      $passwd_name = $name
+      file { "/etc/nginx/${passwd_name}.passwd": 
+        source => "puppet:///modules/nginx/passwd/$passwd_loc/auth_passwd",
+        notify => Exec["reload nginx"],
+        require => Package["nginx"],
+      }
+    }
+    
+
     file { "/etc/nginx/sites-available/jenkins.conf":
              content => template("nginx/jenkins_vhost.erb"),
              require => Package["nginx"],
@@ -156,6 +175,7 @@ class nginx {
              notify  => Exec["reload nginx"],
              require => Package["nginx"],
     }
+
 
 
   }

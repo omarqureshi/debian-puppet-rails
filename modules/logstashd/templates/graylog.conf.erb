@@ -1,0 +1,6 @@
+output {
+ gelf {
+   host => "<%= graylog_server_ip %>"
+   facility => "%{@type}"
+ }
+}

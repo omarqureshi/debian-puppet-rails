@@ -553,4 +553,5 @@
 
 <% hostnames.each do |hostname| %>
 address=/<%= hostname["hostname"] %>/<%= hostname["ip"] %>
+ptr-record=<%= hostname["ip"].split(".").reverse.join(".") %>.in-addr.arpa,"<%= hostname["hostname"] %>"
 <% end %>
