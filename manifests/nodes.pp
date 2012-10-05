@@ -212,7 +212,7 @@ node 'en-tesla' inherits 'ruby-187' {
     options => ["daily", "size 100M", "missingok", "rotate 15", "compress", "delaycompress", "notifempty", "copytruncate"]
   }
   include 'rsyslog'
-  package {"wkhtmltopdf": ensure => installed}
+  include 'wkhtmltopdf'
 }
 
 node 'en-tesla-ci' inherits 'en-tesla' {
@@ -352,6 +352,7 @@ node 'en-production-app1' inherits 'en-production-app' {
     nginx::unicorn_site { 'www.edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
     domain => 'www.edisonnation.com',
+    dirname => 'edisonnation.com',
     sslloc => 'en.com' }
     nginx::add_redirect { 'edisonnation.com': redirect => 'www.edisonnation.com' }
 }
@@ -360,6 +361,7 @@ node 'en-production-app3' inherits 'en-production-app' {
     nginx::unicorn_site { 'www.edisonnation.com': 
     assethost => 'assets.production.edisonnation.com', 
     domain => 'www.edisonnation.com',
+    dirname => 'edisonnation.com',
     sslloc => 'en.com' }
     nginx::add_redirect { 'edisonnation.com': redirect => 'www.edisonnation.com' }
 }
